@@ -55,6 +55,9 @@
   },
   "dependencies": {
     "create-stylesheet": "^0.3.0",
-    "object-assign": "^4.0.1"
+    "object-assign": "^4.0.1",
+    "video.js": "7.3.0",
+    "videojs-record": "^3.6.0",
+    "videojs-wavesurfer": "^2.8.0"
   }
 }

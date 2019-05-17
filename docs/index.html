@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <meta charset="utf-8"/>
+  <meta charset="utf-8" />
   <title>PDFJSAnnotate</title>
-  <link rel="stylesheet" type="text/css" href="shared/toolbar.css"/>
-  <link rel="stylesheet" type="text/css" href="shared/pdf_viewer.css"/>
+  <link rel="stylesheet" type="text/css" href="shared/toolbar.css" />
+  <link rel="stylesheet" type="text/css" href="shared/pdf_viewer.css" />
   <style type="text/css">
     body {
       background-color: #eee;
@@ -15,6 +16,7 @@
     .pdfViewer .canvasWrapper {
       box-shadow: 0 0 3px #bbb;
     }
+
     .pdfViewer .page {
       margin-bottom: 10px;
     }
@@ -31,7 +33,7 @@
       position: absolute;
       top: 35px;
       left: 0;
-      right: 250px;
+      right: 300px;
       bottom: 0;
       overflow: auto;
     }
@@ -42,13 +44,15 @@
       right: 0;
       bottom: 0;
       overflow: auto;
-      width: 250px;
+      width: 400px;
       background: #eaeaea;
       border-left: 1px solid #d0d0d0;
     }
+
     #comment-wrapper h4 {
       margin: 10px;
     }
+
     #comment-wrapper .comment-list {
       font-size: 12px;
       position: absolute;
@@ -57,10 +61,12 @@
       right: 0;
       bottom: 0;
     }
+
     #comment-wrapper .comment-list-item {
       border-bottom: 1px solid #d0d0d0;
       padding: 10px;
     }
+
     #comment-wrapper .comment-list-container {
       position: absolute;
       top: 0;
@@ -69,6 +75,7 @@
       bottom: 47px;
       overflow: auto;
     }
+
     #comment-wrapper .comment-list-form {
       position: absolute;
       left: 0;
@@ -76,15 +83,115 @@
       bottom: 0;
       padding: 10px;
     }
+
     #comment-wrapper .comment-list-form input {
       padding: 5px;
       width: 100%;
     }
+
     .pdfViewer .page {
       border-image: none;
     }
+
+    /* tabs */
+
+    /* Style the tab */
+    .tab {
+      overflow: hidden;
+      border: 1px solid #ccc;
+      background-color: #f1f1f1;
+    }
+
+    /* Style the buttons inside the tab */
+    .tab button {
+      background-color: inherit;
+      float: left;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      transition: 0.3s;
+      font-size: 17px;
+    }
+
+    /* Change background color of buttons on hover */
+    .tab button:hover {
+      background-color: #ddd;
+    }
+
+    /* Create an active/current tablink class */
+    .tab button.active {
+      background-color: #ccc;
+    }
+
+    /* Style the tab content */
+    .tabcontent {
+      display: none;
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-top: none;
+    }
+
+    /* Create an active/current tablink class */
+    .tab button.active {
+      background-color: #ccc;
+    }
+
+    /* Style the tab content */
+    .tabcontent {
+      display: none;
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-top: none;
+    }
+
+    /* Create an active/current tablink class */
+    .tab button.active {
+      background-color: #ccc;
+    }
+
+    /* Style the tab content */
+    .tabcontent {
+      display: none;
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-top: none;
+    }
+    /* videojs-recorder style */
+    #myAudio {
+      background-color: #9FD6BA;
+      z-index: 999;
+    }
+
+    #myVideo {
+      background-color: #9ab87a;
+      z-index: 999;
+    }
   </style>
+  <link href="../node_modules/video.js/dist/video-js.min.css" rel="stylesheet">
+  <link href="../node_modules/videojs-wavesurfer/dist/css/videojs.wavesurfer.min.css" rel="stylesheet">
+  <link href="../node_modules/videojs-record/dist/css/videojs.record.css" rel="stylesheet">
+  <script>
+    function setCookie(cname, cvalue, exdays) {
+      var d = new Date();
+      d.setTime(d.getTime() + (exdays*24*60*60*1000));
+      var expires = "expires="+ d.toUTCString();
+      document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+    setCookie("pdf_file_path", "example.pdf", 1);
+  </script>
+  <script src="../node_modules/video.js/dist/video.min.js"></script>
+  <script src="../node_modules/recordrtc/RecordRTC.js"></script>
+  <script src="../node_modules/webrtc-adapter/out/adapter.js"></script>
+  <script src="../node_modules/wavesurfer.js/dist/wavesurfer.min.js"></script>
+  <script src="../node_modules/wavesurfer.js/dist/plugin/wavesurfer.microphone.min.js"></script>
+  <script src="../node_modules/videojs-wavesurfer/dist/videojs.wavesurfer.min.js"></script>
+
+  <script src="../node_modules/videojs-record/dist/videojs.record.js"></script>
+
+  <script src="../shared/browser-workarounds.js"></script>
 </head>
+
 <body>
   <div class="toolbar">
     <button class="cursor" type="button" title="Cursor" data-tooltype="cursor">➚</button>
@@ -132,18 +239,58 @@
     <div id="viewer" class="pdfViewer"></div>
   </div>
   <div id="comment-wrapper">
-    <h4>Comments</h4>
-    <div class="comment-list">
-      <div class="comment-list-container">
-        <div class="comment-list-item">No comments</div>
+
+    <div class="tab">
+      <button class="tablinks" onclick="openTab(event, 'Comments')" id="defaultOpen">Comments</button>
+      <button class="tablinks" onclick="openTab(event, 'Audio')">Audio</button>
+      <button class="tablinks" onclick="openTab(event, 'Video')">Video</button>
+    </div>
+    <div id="tab_container">
+      <div id="Comments" class="tabcontent">
+        <h4>Comments</h4>
+        <div class="comment-list">
+          <div class="comment-list-container">
+            <div class="comment-list-item">No comments</div>
+          </div>
+          <form class="comment-list-form" style="display:none;">
+            <input type="text" placeholder="Add a Comment" />
+          </form>
+        </div>
       </div>
-      <form class="comment-list-form" style="display:none;">
-        <input type="text" placeholder="Add a Comment"/>
-      </form>
+    </div>
+
+    <div id="Audio" class="tabcontent">
+      <audio id="myAudio" style="margin-left: 5%;width: 90%" class="video-js vjs-default-skin"></audio>
+    </div>
+
+    <div id="Video" class="tabcontent">
+      <video id="myVideo" playsinline class="video-js vjs-default-skin"></video>
     </div>
   </div>
   <script src="shared/pdf.js"></script>
   <script src="shared/pdf_viewer.js"></script>
   <script src="index.js"></script>
+
+  <script src="../shared/audio-recorder.js"></script>
+  <script src="../shared/video-recorder.js"></script>
+  <script>
+    function openTab(evt, cityName) {
+      var i, tabcontent, tablinks;
+      tabcontent = document.getElementsByClassName("tabcontent");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+      tablinks = document.getElementsByClassName("tablinks");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+      document.getElementById(cityName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+
+    // Get the element with id="defaultOpen" and click on it
+    document.getElementById("defaultOpen").click();
+  </script>
 </body>
+
 </html>

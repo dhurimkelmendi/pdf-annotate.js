@@ -3,7 +3,22 @@ import PDFJSAnnotate from '../';
 import initColorPicker from './shared/initColorPicker';
 
 const { UI } = PDFJSAnnotate;
-const documentId = 'example.pdf';
+function getCookie(cname) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for(var i = 0; i <ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+const documentId = getCookie("pdf_file_path");
 let PAGE_HEIGHT;
 let RENDER_OPTIONS = {
   documentId,

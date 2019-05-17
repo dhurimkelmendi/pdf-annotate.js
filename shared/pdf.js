@@ -4779,9 +4779,6 @@ AnnotationElementFactory.prototype =
   create: function AnnotationElementFactory_create(parameters) {
     var subtype = parameters.data.annotationType;
 
-    //focus on adding comment after creating annotation
-    UI.addEventListener('annotation:click', handleAnnotationClick);
-
     switch (subtype) {
       case AnnotationType.LINK:
         return new LinkAnnotationElement(parameters);
